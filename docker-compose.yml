@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: demo_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: demo
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d demo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [demo_net]
+
+  backend:
+    build:
+      context: ./backend
+    container_name: demo_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://demo:demo@postgres:5432/demo
+      JWT_SECRET: demo-secret-not-for-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    networks: [demo_net]
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+    container_name: demo_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    networks: [demo_net]
+
+volumes:
+  postgres_data:
+
+networks:
+  demo_net:
+    driver: bridge
