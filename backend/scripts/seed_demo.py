@@ -14,6 +14,8 @@ import random
 import uuid
 from datetime import timedelta
 
+from sqlalchemy import func, select
+
 from app.core.security import hash_password
 from app.db.models import (
     Appointment, Base, BroadcastRun, CallLog, Contact, Conversation, Goal, Message,
@@ -38,11 +40,19 @@ OPENING_LINES = [
 PASSWORD = "demo1234"
 
 
-async def main() -> None:
+async def seed_if_empty() -> bool:
+    """Populates the database, unless it's already been seeded - safe to
+    call on every boot (see app/main.py's lifespan, for hosts like Render's
+    free tier that don't give you a shell to run this by hand). Returns
+    whether it actually seeded anything."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     async with SessionLocal() as db:
+        already_seeded = (await db.scalar(select(func.count(User.id)))) or 0
+        if already_seeded:
+            return False
+
         admin = User(
             id=uuid.uuid4(), full_name="Dana Admin", email="admin@demo.com",
             password_hash=hash_password(PASSWORD), role="admin",
@@ -231,6 +241,12 @@ async def main() -> None:
     print("  nicole@demo.com      (agent, Line A - just connected)")
     print("  marcus@demo.com      (agent, Line B - warming up)")
     print("  priya@demo.com       (agent, Line C - fully warmed up)")
+    return True
+
+
+async def main() -> None:
+    if not await seed_if_empty():
+        print("Database already has data - skipping (safe to run any time).")
 
 
 if __name__ == "__main__":

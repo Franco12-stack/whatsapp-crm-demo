@@ -11,6 +11,11 @@ across every module, generic data and branding, and a simulated WhatsApp
 provider instead of a live number — so it runs anywhere with
 `docker compose up` and no external account.
 
+**One-click deploy** (free Render hosting, no setup — login details are in
+[Running it](#running-it)):
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Franco12-stack/whatsapp-crm-demo)
+
 ![Inbox screenshot](docs/screenshot-inbox.png)
 
 ## Why the rate limiter is the interesting part
@@ -119,12 +124,35 @@ demo, not a long-lived project), JWT auth, role-based permissions.
 
 ## Running it
 
+### Option A — one-click deploy (no local setup)
+
+Click the **Deploy to Render** button above, sign in with GitHub, and
+confirm. Render provisions a free Postgres database and two web services
+from `render.yaml`. No seed step to run — the backend seeds itself on first
+boot. Two things to know about the free tier:
+
+- It takes a few minutes the first time (building two Docker images).
+- Free services spin down after 15 minutes idle; the first request after
+  that wakes it back up in under a minute.
+
+The frontend's API URL is baked in at build time pointing at
+`https://whatsapp-crm-demo-backend.onrender.com`. If Render had to rename
+your backend service (because that exact name was taken), open the
+**whatsapp-crm-demo-frontend** service in the Render dashboard → Environment,
+fix `VITE_API_BASE_URL` to match the backend's actual URL, and trigger
+**Manual Deploy → Deploy latest commit**.
+
+### Option B — locally with Docker
+
 ```bash
 git clone <this-repo>
 cd whatsapp-crm-demo
 docker compose up -d --build
-docker compose exec backend python -m scripts.seed_demo
 ```
+
+No seed step to run here either — same auto-seed as above. (The manual
+command still works if you ever want to force a re-check:
+`docker compose exec backend python -m scripts.seed_demo`.)
 
 Then open **http://localhost:5173**. All demo accounts use the password
 `demo1234`:

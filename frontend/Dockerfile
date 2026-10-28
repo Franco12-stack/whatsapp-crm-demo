@@ -8,5 +8,8 @@ COPY . .
 RUN npm run build
 
 FROM nginx:1.27-alpine
+# $PORT is set by hosts like Render; defaults to 80 for docker-compose,
+# which doesn't set it (and maps host 5173 -> container 80).
+ENV PORT=80
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
