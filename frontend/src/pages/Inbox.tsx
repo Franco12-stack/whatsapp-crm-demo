@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { broadcasts, conversations } from "../api/endpoints";
 import { ApiError } from "../api/client";
 import type { ConversationOut, MessageOut } from "../types";
+import { avatarHue, initials } from "../utils";
 
 export function Inbox() {
   const [list, setList] = useState<ConversationOut[]>([]);
@@ -92,11 +93,19 @@ export function Inbox() {
             {broadcastMode && (
               <input type="checkbox" checked={checked.has(c.id)} onChange={() => toggleCheck(c.id)} />
             )}
-            <div className="conversation-row-main">
-              <strong>{c.contact.name}</strong>
-              <span className={`tag ${c.is_warm ? "warm" : "cold"}`}>{c.is_warm ? "warm" : "cold"}</span>
+            <span
+              className="avatar avatar-sm"
+              style={{ background: `hsl(${avatarHue(c.contact.name)}, 45%, 32%)` }}
+            >
+              {initials(c.contact.name)}
+            </span>
+            <div className="conversation-row-body">
+              <div className="conversation-row-main">
+                <strong>{c.contact.name}</strong>
+                <span className={`tag ${c.is_warm ? "warm" : "cold"}`}>{c.is_warm ? "warm" : "cold"}</span>
+              </div>
+              <span className="tenue">{c.contact.phone_number}</span>
             </div>
-            <span className="tenue">{c.contact.phone_number}</span>
           </div>
         ))}
         {list.length === 0 && <p className="tenue">No conversations yet.</p>}
@@ -126,8 +135,20 @@ export function Inbox() {
         ) : selected ? (
           <>
             <div className="thread-header">
-              <strong>{selected.contact.name}</strong>
-              <span className="tenue">{selected.contact.phone_number}</span>
+              <span
+                className="avatar"
+                style={{ background: `hsl(${avatarHue(selected.contact.name)}, 45%, 32%)` }}
+              >
+                {initials(selected.contact.name)}
+              </span>
+              <div>
+                <strong>{selected.contact.name}</strong>
+                <br />
+                <span className="tenue">{selected.contact.phone_number}</span>
+              </div>
+              <span className={`tag ${selected.is_warm ? "warm" : "cold"}`}>
+                {selected.is_warm ? "warm" : "cold"}
+              </span>
             </div>
             <div className="thread" ref={threadRef}>
               {messages.map((m) => (

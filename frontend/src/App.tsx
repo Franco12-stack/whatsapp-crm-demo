@@ -4,6 +4,13 @@ import { Inbox } from "./pages/Inbox";
 import { Login } from "./pages/Login";
 import { SupervisorDashboard } from "./pages/SupervisorDashboard";
 import { useAuth } from "./hooks/useAuth";
+import { initials } from "./utils";
+
+const NAV_ICONS: Record<string, string> = {
+  "/": "💬",
+  "/dashboard": "📊",
+  "/admin": "⚙️",
+};
 
 function Shell() {
   const { user, logout } = useAuth();
@@ -13,21 +20,42 @@ function Shell() {
 
   return (
     <div className="shell">
-      <nav className="topnav">
-        <span className="brand">WhatsApp CRM Demo</span>
-        <NavLink to="/" end>
-          Inbox
-        </NavLink>
-        {(user.role === "admin" || user.role === "supervisor") && (
-          <NavLink to="/dashboard">Dashboard</NavLink>
-        )}
-        {user.role === "admin" && <NavLink to="/admin">Admin</NavLink>}
-        <span className="spacer" />
-        <span className="tenue">
-          {user.full_name} ({user.role})
-        </span>
+      <aside className="sidenav">
+        <div className="sidenav-brand">
+          <span className="brand-mark">◆</span>
+          <span className="brand-text">WhatsApp CRM</span>
+        </div>
+
+        <nav className="sidenav-links">
+          <NavLink to="/" end className="sidenav-link">
+            <span className="sidenav-icon">{NAV_ICONS["/"]}</span>
+            Inbox
+          </NavLink>
+          {(user.role === "admin" || user.role === "supervisor") && (
+            <NavLink to="/dashboard" className="sidenav-link">
+              <span className="sidenav-icon">{NAV_ICONS["/dashboard"]}</span>
+              Dashboard
+            </NavLink>
+          )}
+          {user.role === "admin" && (
+            <NavLink to="/admin" className="sidenav-link">
+              <span className="sidenav-icon">{NAV_ICONS["/admin"]}</span>
+              Admin
+            </NavLink>
+          )}
+        </nav>
+
+        <div className="sidenav-spacer" />
+
+        <div className="sidenav-user">
+          <span className="avatar">{initials(user.full_name)}</span>
+          <div className="sidenav-user-info">
+            <strong>{user.full_name}</strong>
+            <span className={`role-chip role-${user.role}`}>{user.role}</span>
+          </div>
+        </div>
         <button
-          className="link-btn"
+          className="link-btn sidenav-logout"
           onClick={() => {
             logout();
             navigate("/login");
@@ -35,7 +63,8 @@ function Shell() {
         >
           Log out
         </button>
-      </nav>
+      </aside>
+
       <div className="content">
         <Routes>
           <Route path="/" element={<Inbox />} />

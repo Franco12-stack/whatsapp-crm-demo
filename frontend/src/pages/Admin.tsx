@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { admin } from "../api/endpoints";
 import type { LineOut } from "../types";
 
+function statusDot(daysConnected: number): string {
+  if (daysConnected >= 30) return "dot-ok";
+  if (daysConnected >= 7) return "dot-warn";
+  return "dot-new";
+}
+
 export function Admin() {
   const [lines, setLines] = useState<LineOut[]>([]);
 
@@ -28,11 +34,13 @@ export function Admin() {
 
   return (
     <div className="admin-panel">
-      <h2>WhatsApp Lines</h2>
-      <p className="tenue">
-        The effective daily limit shown is <code>min(commercial policy, warm-up tier)</code> -
-        a brand-new line stays capped even with a high policy, until it ages past the ramp.
-      </p>
+      <header className="page-header">
+        <h2>WhatsApp Lines</h2>
+        <p className="tenue">
+          The effective daily limit shown is <code>min(commercial policy, warm-up tier)</code> -
+          a brand-new line stays capped even with a high policy, until it ages past the ramp.
+        </p>
+      </header>
       <table className="lines-table">
         <thead>
           <tr>
@@ -48,8 +56,10 @@ export function Admin() {
           {lines.map((l) => (
             <tr key={l.id}>
               <td>
-                <strong>{l.label}</strong>
-                <br />
+                <div className="status-line">
+                  <span className={`dot ${statusDot(l.days_connected)}`} />
+                  <strong>{l.label}</strong>
+                </div>
                 <span className="tenue">{l.phone_number}</span>
               </td>
               <td>{l.days_connected}</td>
