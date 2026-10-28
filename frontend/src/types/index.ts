@@ -11,6 +11,9 @@ export interface ContactOut {
   id: string;
   name: string;
   phone_number: string;
+  crm_account: string | null;
+  lifetime_value: number;
+  last_order_at: string | null;
 }
 
 export interface ConversationOut {
@@ -64,4 +67,83 @@ export interface BroadcastSkipped {
   conversation_id: string;
   contact_name: string;
   phone_number: string;
+}
+
+export interface BroadcastRunOut {
+  id: string;
+  body: string;
+  sent_by: UserOut;
+  sent_count: number;
+  skipped_cold_count: number;
+  forced: boolean;
+  created_at: string;
+}
+
+export interface CallLogOut {
+  id: string;
+  duration_seconds: number;
+  created_at: string;
+}
+
+export type EstadoTicket = "open" | "in_progress" | "resolved";
+export type PrioridadTicket = "low" | "medium" | "high" | "urgent";
+
+export interface SupportTicketOut {
+  id: string;
+  title: string;
+  description: string;
+  priority: PrioridadTicket;
+  state: EstadoTicket;
+  reported_by: UserOut;
+  admin_note: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AppointmentOut {
+  id: string;
+  contact: ContactOut;
+  title: string;
+  scheduled_at: string;
+  done: boolean;
+}
+
+export interface GoalOut {
+  id: string;
+  agent_id: string;
+  target_messages_month: number;
+  target_conversations_month: number;
+  progress_messages: number;
+  progress_conversations: number;
+}
+
+export interface PromotionOut {
+  id: string;
+  title: string;
+  body: string;
+  active: boolean;
+}
+
+export interface ProductOut {
+  id: string;
+  name: string;
+  price_cents: number;
+  stock: number;
+}
+
+export interface MetricsOut {
+  messages_today: number;
+  messages_this_week: number;
+  messages_this_month: number;
+  conversations_total: number;
+  conversations_warm: number;
+  conversations_cold: number;
+  calls_logged: number;
+  broadcasts_sent: number;
+  tickets_open: number;
+}
+
+export interface AiSuggestOut {
+  suggestion: string;
+  note: string;
 }

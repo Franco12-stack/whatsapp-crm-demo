@@ -204,3 +204,93 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent); }
 .lines-table tr:last-child td { border-bottom: none; }
 .policy-inputs { display: flex; gap: 6px; }
 .policy-inputs input { width: 58px; padding: 6px 8px; }
+
+/* Contact panel (CRM + calls), right of the thread */
+.contact-panel { width: 260px; flex-shrink: 0; border-left: 1px solid var(--border); background: var(--panel); overflow-y: auto; padding: 20px 16px; }
+.contact-panel-head { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding-bottom: 18px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.contact-panel-head .avatar { width: 52px; height: 52px; font-size: 18px; }
+.contact-panel-section { margin-bottom: 20px; }
+.contact-panel-section h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--tenue); margin: 0 0 10px; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; margin: 0; font-size: 13px; }
+.kv dt { color: var(--tenue); }
+.kv dd { margin: 0; text-align: right; }
+.sync-note { margin-top: 10px; font-size: 11px; font-style: italic; }
+.call-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.call-list li { display: flex; flex-direction: column; gap: 2px; font-size: 13px; background: var(--panel-raised); border-radius: 6px; padding: 8px 10px; }
+.thread-call-btn { margin-left: auto; }
+.ai-suggest-btn { flex-shrink: 0; }
+
+/* Broadcasts */
+.broadcasts-page { padding: 0 0 24px; overflow-y: auto; height: 100%; }
+.broadcasts-layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; padding: 16px 24px 0; }
+.broadcasts-picker, .broadcasts-compose { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; }
+.broadcasts-picker-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.picker-list { max-height: 360px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.picker-row { display: flex; align-items: center; gap: 8px; padding: 7px 4px; font-size: 13px; cursor: pointer; border-radius: 6px; }
+.picker-row:hover { background: var(--panel-alt); }
+.picker-row span:nth-child(2) { flex: 1; }
+.broadcasts-compose textarea { width: 100%; margin: 10px 0; }
+.broadcasts-compose .actions { display: flex; gap: 10px; }
+.broadcasts-history { padding: 24px 24px 0; }
+.broadcasts-history h3 { margin-bottom: 4px; }
+.broadcast-body-cell { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Metrics / Report */
+.metrics-page { padding: 0 0 24px; overflow-y: auto; height: 100%; }
+.metrics-page section { padding: 0 24px; margin-top: 20px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.stat-tile { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+.stat-tile strong { font-size: 24px; }
+.conversations-split h3 { margin-bottom: 10px; }
+.split-bar { height: 10px; border-radius: 5px; background: var(--danger-soft); overflow: hidden; }
+.split-bar-warm { height: 100%; background: var(--accent); }
+.split-legend { display: flex; gap: 18px; margin-top: 8px; font-size: 13px; }
+.split-legend span { display: flex; align-items: center; gap: 6px; }
+
+/* Support kanban */
+.support-page { padding: 0 0 24px; overflow-y: auto; height: 100%; }
+.support-form { display: flex; gap: 8px; padding: 0 24px; margin-top: 14px; flex-wrap: wrap; }
+.support-form input, .support-form textarea { flex: 1; min-width: 140px; }
+.support-form select { flex-shrink: 0; }
+.kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 20px 24px 0; align-items: start; }
+.kanban-col { background: var(--panel-alt); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; }
+.kanban-col-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--tenue); padding: 2px 4px 10px; }
+.kanban-count { background: var(--panel-raised); border-radius: 10px; padding: 1px 8px; font-size: 11px; }
+.kanban-col-body { display: flex; flex-direction: column; gap: 10px; min-height: 40px; }
+.ticket-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.ticket-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.ticket-note { background: var(--panel-raised); border-radius: 6px; padding: 6px 8px; font-size: 12px; margin: 0; }
+.ticket-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.ticket-actions button { font-size: 11px; padding: 5px 9px; }
+.tag.priority-urgent { background: var(--danger-soft); color: #ff8a82; }
+.tag.priority-high { background: var(--warn-soft); color: var(--warn); }
+.tag.priority-medium { background: rgba(75, 139, 244, 0.14); color: var(--info); }
+.tag.priority-low { background: var(--panel-raised); color: var(--tenue); }
+
+/* Agenda / Contact today */
+.agenda-page, .contact-today-page, .goals-page, .promotions-page, .products-page, .reassign-page {
+  padding: 0 0 24px; overflow-y: auto; height: 100%;
+}
+.agenda-page section, .contact-today-page > .agenda-list { padding: 0 24px; margin-top: 18px; }
+.agenda-form { display: flex; gap: 8px; padding: 0 24px; margin-top: 14px; flex-wrap: wrap; }
+.agenda-form select, .agenda-form input { flex: 1; min-width: 150px; }
+.agenda-list { display: flex; flex-direction: column; gap: 8px; }
+.agenda-row { display: flex; align-items: center; gap: 12px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 10px 14px; cursor: default; }
+.contact-today-page .agenda-row { cursor: pointer; }
+.contact-today-page .agenda-row:hover { border-color: var(--accent); }
+.agenda-row.done { opacity: 0.5; }
+.agenda-row.overdue { border-color: var(--danger); }
+.agenda-row-date { display: flex; flex-direction: column; align-items: center; min-width: 54px; }
+.agenda-row-body { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+/* Goals */
+.goal-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; padding: 16px 24px 0; }
+.goal-inputs { margin-top: 10px; }
+
+/* Promotions / Products */
+.promo-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; padding: 16px 24px 0; }
+.promo-cards .agent-card button { margin-top: 10px; }
+.product-form input { flex: 1; }
+
+/* Reassign */
+.reassign-page .notice { margin: 14px 24px 0; }

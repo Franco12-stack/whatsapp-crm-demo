@@ -18,13 +18,14 @@ from dataclasses import dataclass
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Alert, Conversation, Message, utcnow
+from app.db.models import Alert, BroadcastRun, Conversation, Message, utcnow
 
 
 @dataclass
 class BroadcastResult:
     sent_to: list[uuid.UUID]
     skipped_cold: list[dict]  # [{conversation_id, contact_name, phone_number}]
+    run_id: uuid.UUID
 
 
 class BroadcastService:
@@ -83,4 +84,15 @@ class BroadcastService:
             )
 
         await self.db.flush()
-        return BroadcastResult(sent_to=[c.id for c in targets], skipped_cold=skipped)
+
+        run = BroadcastRun(
+            body=body,
+            sent_by_user_id=sent_by_user_id,
+            sent_count=len(targets),
+            skipped_cold_count=len(skipped),
+            forced=force,
+        )
+        self.db.add(run)
+        await self.db.flush()
+
+        return BroadcastResult(sent_to=[c.id for c in targets], skipped_cold=skipped, run_id=run.id)

@@ -92,6 +92,17 @@ async def admin(db) -> User:
 
 
 @pytest_asyncio.fixture
+async def supervisor(db) -> User:
+    user = User(
+        id=uuid.uuid4(), full_name="Test Supervisor", email=f"supervisor-{uuid.uuid4()}@demo.com",
+        password_hash=hash_password("secret123"), role="supervisor",
+    )
+    db.add(user)
+    await db.commit()
+    return user
+
+
+@pytest_asyncio.fixture
 async def line(db, agent) -> WhatsAppLine:
     wa_line = WhatsAppLine(
         id=uuid.uuid4(), phone_number=f"+1555{uuid.uuid4().int % 10_000_000:07d}",

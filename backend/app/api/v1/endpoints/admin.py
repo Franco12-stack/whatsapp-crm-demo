@@ -9,7 +9,7 @@ import uuid
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
-from app.core.deps import AdminUser, DbSession
+from app.core.deps import AdminUser, DbSession, SupervisorUser
 from app.db.models import WhatsAppLine, utcnow
 from app.schemas import LineOut, LinePolicyIn
 from app.services.rate_limiter import RateLimiter
@@ -32,7 +32,9 @@ async def _to_out(db: DbSession, line: WhatsAppLine) -> LineOut:
 
 
 @router.get("/lines", response_model=list[LineOut])
-async def list_lines(_: AdminUser, db: DbSession) -> list[LineOut]:
+async def list_lines(_: SupervisorUser, db: DbSession) -> list[LineOut]:
+    """Supervisors can see lines (needed for the Distribute page) but only
+    admins can edit a policy or reset a warm-up - see the endpoints below."""
     rows = (await db.execute(select(WhatsAppLine).order_by(WhatsAppLine.label))).scalars().all()
     return [await _to_out(db, line) for line in rows]
 

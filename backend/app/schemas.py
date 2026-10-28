@@ -25,6 +25,9 @@ class ContactOut(BaseModel):
     id: uuid.UUID
     name: str
     phone_number: str
+    crm_account: str | None = None
+    lifetime_value: int = 0
+    last_order_at: datetime | None = None
 
 
 class MessageOut(BaseModel):
@@ -49,6 +52,10 @@ class SendMessageIn(BaseModel):
     body: str
 
 
+class ReassignIn(BaseModel):
+    line_id: uuid.UUID
+
+
 class BroadcastIn(BaseModel):
     conversation_ids: list[uuid.UUID]
     body: str
@@ -58,6 +65,60 @@ class BroadcastIn(BaseModel):
 class BroadcastOut(BaseModel):
     sent_to: list[uuid.UUID]
     skipped_cold: list[dict]
+
+
+class BroadcastRunOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    body: str
+    sent_by: UserOut
+    sent_count: int
+    skipped_cold_count: int
+    forced: bool
+    created_at: datetime
+
+
+class CallLogOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    duration_seconds: int
+    created_at: datetime
+
+
+class SupportTicketIn(BaseModel):
+    title: str
+    description: str
+    priority: str = "medium"
+
+
+class SupportTicketUpdateIn(BaseModel):
+    state: str
+    admin_note: str | None = None
+
+
+class SupportTicketOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    title: str
+    description: str
+    priority: str
+    state: str
+    reported_by: UserOut
+    admin_note: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class MetricsOut(BaseModel):
+    messages_today: int
+    messages_this_week: int
+    messages_this_month: int
+    conversations_total: int
+    conversations_warm: int
+    conversations_cold: int
+    calls_logged: int
+    broadcasts_sent: int
+    tickets_open: int
 
 
 class LineOut(BaseModel):
@@ -97,3 +158,70 @@ class AgentStatusOut(BaseModel):
     line: LineOut | None
     open_conversations: int
     messages_today: int
+
+
+class AppointmentIn(BaseModel):
+    contact_id: uuid.UUID
+    title: str
+    scheduled_at: datetime
+
+
+class AppointmentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    contact: ContactOut
+    title: str
+    scheduled_at: datetime
+    done: bool
+
+
+class GoalIn(BaseModel):
+    target_messages_month: int
+    target_conversations_month: int
+
+
+class GoalOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    agent_id: uuid.UUID
+    target_messages_month: int
+    target_conversations_month: int
+    progress_messages: int = 0
+    progress_conversations: int = 0
+
+
+class PromotionIn(BaseModel):
+    title: str
+    body: str
+    active: bool = True
+
+
+class PromotionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    title: str
+    body: str
+    active: bool
+
+
+class ProductIn(BaseModel):
+    name: str
+    price_cents: int
+    stock: int
+
+
+class ProductOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    name: str
+    price_cents: int
+    stock: int
+
+
+class AiSuggestIn(BaseModel):
+    conversation_id: uuid.UUID
+
+
+class AiSuggestOut(BaseModel):
+    suggestion: str
+    note: str = "Demo mode: canned suggestion, not a live model call."

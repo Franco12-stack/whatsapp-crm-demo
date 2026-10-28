@@ -1,14 +1,15 @@
 # WhatsApp CRM Demo
 
-A multichannel sales inbox for teams who sell over WhatsApp — chats, broadcasts,
-a supervisor dashboard, and an **anti-ban rate limiter with a warm-up ramp**,
+A full multichannel sales platform for teams who sell over WhatsApp — chats
+with a CRM side panel and call logging, broadcasts, a supervisor dashboard,
+support tickets, goals, and an **anti-ban rate limiter with a warm-up ramp**,
 which is the part worth actually reading the code for.
 
 This is a distilled, from-scratch rebuild of patterns from a production
-WhatsApp CRM I built for a sales team: real architecture and business logic,
-generic data and branding, and a simulated WhatsApp provider instead of a
-live number — so it runs anywhere with `docker compose up` and no external
-account.
+WhatsApp CRM I built for a sales team: real architecture and business logic
+across every module, generic data and branding, and a simulated WhatsApp
+provider instead of a live number — so it runs anywhere with
+`docker compose up` and no external account.
 
 ![Inbox screenshot](docs/screenshot-inbox.png)
 
@@ -51,7 +52,39 @@ message — and it costs you the sale. See [`rate_limiter.py`](backend/app/servi
 for the full reasoning, and [`conversations.py`](backend/app/api/v1/endpoints/conversations.py)
 for how sends use it.
 
-## What else is in here
+## Every module
+
+| Module | What it does |
+|---|---|
+| **Chats** | The inbox — threads, sending, a CRM side panel (account, lifetime value, last order), call logging, and an "AI suggest reply" button. |
+| **Agenda** | Follow-up reminders tied to a contact, scheduled from a conversation. |
+| **Contact today** | Warm conversations that have gone quiet 2+ days — a nudge list before a lead goes cold. |
+| **Broadcasts** | Bulk sends with the cold/warm split, a recipient picker, and a history of past sends. |
+| **My metrics** | An agent's own activity: messages, calls, broadcasts, open tickets, warm/cold split. |
+| **Report** | The same metrics, aggregated across the whole team — for a supervisor/admin. |
+| **Dashboard** | Live per-agent status against each line's *effective* warm-up limit, plus the alert feed. |
+| **Goals** | Monthly targets per agent, with progress computed live (never stale). |
+| **Distribute** | Move a conversation to another agent's WhatsApp line. |
+| **Promotions** | Reusable broadcast templates — pick one to prefill a broadcast. |
+| **Products** | A small catalog so a quote can reference real stock and price. |
+| **Support** | A ticket kanban (open / in progress / resolved), with priorities and an admin note. |
+| **Administration** | WhatsApp line management, commercial policy, warm-up reset. |
+| **AI Assistant** | A reply suggestion button in the chat — honestly labeled as canned/keyword-matched, not a live model call (see below). |
+
+<table>
+<tr><td><img src="docs/screenshot-dashboard.png" width="420"/></td><td><img src="docs/screenshot-support.png" width="420"/></td></tr>
+<tr><td align="center"><sub>Supervisor dashboard — the warm-up ramp in action</sub></td><td align="center"><sub>Support ticket kanban</sub></td></tr>
+<tr><td><img src="docs/screenshot-broadcasts.png" width="420"/></td><td><img src="docs/screenshot-distribute.png" width="420"/></td></tr>
+<tr><td align="center"><sub>Broadcasts — recipient picker + history</sub></td><td align="center"><sub>Distribute — reassign a conversation</sub></td></tr>
+<tr><td><img src="docs/screenshot-metrics.png" width="420"/></td><td><img src="docs/screenshot-contact-today.png" width="420"/></td></tr>
+<tr><td align="center"><sub>My metrics</sub></td><td align="center"><sub>Contact today — quiet warm leads</sub></td></tr>
+<tr><td><img src="docs/screenshot-agenda.png" width="420"/></td><td><img src="docs/screenshot-promotions.png" width="420"/></td></tr>
+<tr><td align="center"><sub>Agenda</sub></td><td align="center"><sub>Promotions</sub></td></tr>
+<tr><td><img src="docs/screenshot-products.png" width="420"/></td><td><img src="docs/screenshot-admin.png" width="420"/></td></tr>
+<tr><td align="center"><sub>Products</sub></td><td align="center"><sub>Administration — the ramp, concretely</sub></td></tr>
+</table>
+
+## Design decisions worth reading the code for
 
 - **Cold vs. warm contacts.** A broadcast skips contacts who've never written
   in first by default (opening many cold conversations at once is the
@@ -61,22 +94,22 @@ for how sends use it.
 - **Role-based access with a twist.** Admins and supervisors can send inside
   any agent's conversation (the message goes out through that agent's line,
   so the customer sees one continuous thread — but it's recorded as sent by
-  whoever actually typed it).
-- **A live supervisor dashboard**, with usage computed against the *effective*
-  limit, not the raw commercial policy — showing 10% used against a policy of
-  250 is meaningless if the real ceiling right now is 20 because the line is
-  still warming up.
-
-  ![Supervisor dashboard](docs/screenshot-dashboard.png)
-
-- **A simulated WhatsApp provider.** A background task periodically makes a
-  random open conversation "reply," so the inbox feels alive during a
-  walkthrough with nothing real connected. See [`simulator.py`](backend/app/services/simulator.py).
-
-The admin panel is where the warm-up ramp becomes concrete: three lines, one
-policy, three different effective limits.
-
-![Admin panel showing the warm-up ramp](docs/screenshot-admin.png)
+  whoever actually typed it). Supervisors can *see* WhatsApp lines (needed for
+  Distribute) but only admins can edit a policy or reset a warm-up.
+- **Usage shown against the effective limit, not the raw policy** — showing
+  10% used against a policy of 250 is meaningless if the real ceiling right
+  now is 20 because the line is still warming up. Dashboard, Report, and My
+  metrics all share one computation (`metrics.py`) so they can't quietly
+  disagree on what "this week" means.
+- **Goal progress is computed live, never stored** — so it can't go stale
+  the way a cached counter would.
+- **The AI assistant and the WhatsApp provider are both honestly simulated.**
+  A background task makes conversations "reply" so the inbox feels alive; the
+  "Suggest reply" button does keyword matching, not a live model call. Both
+  say so in the code and, for the AI one, in the API response itself
+  (`note: "Demo mode..."`). Wiring a real LLM or a real WhatsApp account into
+  a public demo would mean shipping credentials — not worth it to show what's
+  genuinely the least interesting part of either integration.
 
 ## Stack
 
@@ -98,8 +131,8 @@ Then open **http://localhost:5173**. All demo accounts use the password
 
 | Role | Email | What it shows |
 |---|---|---|
-| Admin | `admin@demo.com` | Line management, policies, warm-up reset |
-| Supervisor | `supervisor@demo.com` | Live agent status, alerts |
+| Admin | `admin@demo.com` | Line management, policies, warm-up reset, promotions/products |
+| Supervisor | `supervisor@demo.com` | Live agent status, alerts, team report, distribute |
 | Agent | `nicole@demo.com` | A line that just connected (20 msgs/day cap) |
 | Agent | `marcus@demo.com` | A line 10 days into the ramp (70/day) |
 | Agent | `priya@demo.com` | A fully warmed up line (full policy, 250/day) |
@@ -126,8 +159,9 @@ pip install -r requirements-dev.txt
 TEST_DATABASE_URL=postgresql+asyncpg://demo:demo@localhost:5432/demo pytest -q
 ```
 
-21 tests covering the warm-up ramp's edge cases, the cold/warm broadcast
-split, and the "allowed but alerted" rate-limit behavior end to end through
+33 tests covering the warm-up ramp's edge cases, the cold/warm broadcast
+split, role scoping across every module (who can see what, who can edit
+what), and the "allowed but alerted" rate-limit behavior end to end through
 the real HTTP API.
 
 ## Project layout
@@ -141,25 +175,39 @@ backend/
       rate_limiter.py   the warm-up ramp (start here)
       broadcasts.py      cold/warm contact logic
       simulator.py       fake WhatsApp replies for the demo
-    api/v1/endpoints/    auth, conversations, broadcasts, dashboard, admin
+    api/v1/endpoints/
+      conversations.py  chats, calls, follow-ups, reassignment
+      broadcasts.py     bulk sends + history
+      dashboard.py      supervisor live status + alerts
+      metrics.py        shared My metrics / Report computation
+      admin.py          WhatsApp line management
+      support.py        ticket kanban
+      appointments.py   Agenda
+      goals.py          monthly targets with live progress
+      promotions.py     broadcast templates
+      products.py       catalog
+      ai.py             the "suggest reply" stub
   db/init/       plain-SQL schema
   scripts/       seed_demo.py
   tests/
 frontend/
   src/
-    pages/       Login, Inbox, SupervisorDashboard, Admin
+    pages/       one file per module (Inbox, Agenda, Broadcasts, Metrics,
+                  SupervisorDashboard, Goals, Reassign, Promotions, Products,
+                  Support, Admin, ContactToday, Login)
     api/         typed HTTP client
 ```
 
 ## What this demo leaves out on purpose
 
-The production project this is distilled from also syncs with an ERP for
-orders/payments, integrates with a cloud PBX for call-effectiveness metrics,
-and runs real WhatsApp sessions through per-line residential proxies (so a
-ban on one number doesn't put the others at risk by sharing an IP). Those are
-real integrations with another company's infrastructure and aren't something
-to publish — the parts here are the ones that are interesting as *general*
-engineering, not tied to anyone's specific stack.
+The production project this is distilled from also syncs with a real ERP for
+orders/payments, integrates with a real cloud PBX, calls a real LLM for reply
+suggestions, and runs real WhatsApp sessions through per-line residential
+proxies (so a ban on one number doesn't put the others at risk by sharing an
+IP). Those are real integrations with another company's infrastructure and
+credentials, and aren't something to publish — what's here is every pattern
+and business decision generalized away from them, which is the part that's
+actually interesting as engineering.
 
 ## License
 
